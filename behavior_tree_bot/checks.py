@@ -10,4 +10,6 @@ def have_largest_fleet(state):
            > sum(planet.num_ships for planet in state.enemy_planets()) \
              + sum(fleet.num_ships for fleet in state.enemy_fleets())
 
-
+# def have_higher_production(state):
+#     return sum(planet.growth_rate for planet in state.my_planets()) > \
+#             sum(planet.growth_rate for planet in state.enemy_planets())
