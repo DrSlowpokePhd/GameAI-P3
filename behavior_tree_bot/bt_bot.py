@@ -38,10 +38,22 @@ def setup_behavior_tree():
 
     spread_attack_sequence = Sequence(name='Spread Then Attack')
     spread_attack_sequence.child_nodes = [neutral_planet_check, spread_action, attack]
+
+    retreat_sequence = Sequence(name='Retreat to Largest')
+    largest_fleet_check = Check(have_largest_fleet)
+    retreat = Action(retreat_to_largest)
+    retreat_sequence.child_nodes = [largest_fleet_check, retreat]
+
+    steal_sequence = Sequence(name='Steal Neutral from Enemy')
+    largest_fleet_check = Check(have_largest_fleet)
+    neutral_planet_check = Check(if_neutral_planet_available)
+    steal = Action(steal_neutral_planet)
+    steal_sequence.child_nodes = [neutral_planet_check, largest_fleet_check, steal]
+
     
     
 
-    root.child_nodes = [spread_sequence, offensive_plan, attack.copy()]
+    root.child_nodes = [spread_sequence, offensive_plan, steal_sequence, retreat_sequence, attack.copy()]
 
     logging.info('\n' + root.tree_to_string())
     return root
