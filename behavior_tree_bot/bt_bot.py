@@ -28,32 +28,28 @@ def setup_behavior_tree():
 
     offensive_plan = Sequence(name='Safe Attack')
     largest_fleet_check = Check(have_largest_fleet)
+    safety_check = Check(is_not_under_attack)
     attack = Action(smart_attack)
-    offensive_plan.child_nodes = [largest_fleet_check, attack]
+    offensive_plan.child_nodes = [largest_fleet_check, safety_check, attack]
 
     spread_sequence = Sequence(name='Spread Strategy')
     neutral_planet_check = Check(if_neutral_planet_available)
-    spread_action = Action(spread_to_closest_neutral_planet)
-    spread_sequence.child_nodes = [neutral_planet_check, spread_action]
+    safety_check = Check(is_not_under_attack)
+    #spread_select = Selector(name='Spread Select')
+    spread_closest = Action(spread_to_closest_neutral_planet)
+    #spread_neutral = Action(spread_to_neutral)
+    spread_sequence.child_nodes = [neutral_planet_check, safety_check, spread_closest]
+    #spread_select.child_nodes = [spread_closest, spread_neutral]
 
     spread_attack_sequence = Sequence(name='Spread Then Attack')
-    spread_attack_sequence.child_nodes = [neutral_planet_check, spread_action, attack]
+    spread_attack_sequence.child_nodes = [neutral_planet_check, spread_closest, attack]
 
-    retreat_sequence = Sequence(name='Retreat to Largest')
-    largest_fleet_check = Check(have_largest_fleet)
-    retreat = Action(retreat_to_largest)
-    retreat_sequence.child_nodes = [largest_fleet_check, retreat]
+    defend_sequence = Sequence(name='Defend Strategy')
+    defend = Action(fight_or_flight)
+    defend_sequence.child_nodes = [defend]
 
-    steal_sequence = Sequence(name='Steal Neutral from Enemy')
-    largest_fleet_check = Check(have_largest_fleet)
-    neutral_planet_check = Check(if_neutral_planet_available)
-    steal = Action(steal_neutral_planet)
-    steal_sequence.child_nodes = [neutral_planet_check, largest_fleet_check, steal]
 
-    
-    
-
-    root.child_nodes = [spread_sequence, offensive_plan, steal_sequence, retreat_sequence, attack.copy()]
+    root.child_nodes = [spread_sequence, offensive_plan, defend_sequence, attack.copy()]
 
     logging.info('\n' + root.tree_to_string())
     return root
